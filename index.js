@@ -1,18 +1,29 @@
 var fs = require("fs"),
-    http = require("http"),
+    http = require("https"),
     url = require("url"),
     path = require("path"),
     qs = require('querystring'),
     child_process = require('child_process'),
     mediaPath = '/mnt/media/',
     defaultExt = '.mp4',
-    maxBlockSize = 1024 * 1024 * 2;
+    maxBlockSize = 1024 * 1024 * 2,
+    certPath = './daemon.cert',
+    keyPath = './daemon.pkey';
+
+var blacklist = [
+  '/License',
+];
+
+var options = {
+  key: fs.readFileSync(keyPath),
+  cert: fs.readFileSync(certPath)
+};
 
 function endsWith(str, ends) {
     return str.indexOf(ends) == (str.length - ends.length);
 }
 
-http.createServer(function (req, res) {
+http.createServer(options, function (req, res) {
   if(req.method == 'POST') {
     var d = '';
     req.on('data', function(data) {
@@ -61,6 +72,9 @@ http.createServer(function (req, res) {
                 res.writeHead(200, { "Content-Type": "text/html" });
                 for(var c = 0; c < files.length; ++c) {
                     var href = path.join(req.url, files[c]);
+                    if(blacklist.indexOf(href) > -1) {
+                        continue;
+                    }
                     try {
                         var subStat = fs.statSync(path.join(mediaDir, files[c]));
                         if(subStat.isFile() && endsWith(href, defaultExt)) {
