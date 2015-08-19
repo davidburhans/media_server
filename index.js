@@ -11,7 +11,7 @@ var fs = require("fs"),
     keyPath = './daemon.pkey';
 
 var blacklist = [
-  '/License',
+  /^License/,
 ];
 
 var options = {
@@ -82,8 +82,10 @@ function renderFileListing(req, res) {
   var files = req.mediaFiles,
       mediaDir = req.mediaDir;
   for(var c = 0; c < files.length; ++c) {
-    var href = path.join(mediaDir, files[c]).replace(mediaPath, '');
-    if(blacklist.indexOf(href) > -1) {
+    var href = path.join(mediaDir, files[c]).replace(mediaPath, ''),
+        isBlacklisted = blacklist.some(function(b) { return href.match(b) != null; }); 
+    
+    if(isBlacklisted) {
         continue;
     }
     try {
