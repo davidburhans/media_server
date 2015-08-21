@@ -1,0 +1,12 @@
+{
+	"blacklist": [
+		"^License"
+	],
+	"server": {
+		"key": "./daemon.pkey",
+		"cert": "./daemon.cert"
+	},
+	"maxBlockSize": 524800,
+	"mediaPath": "/mnt/media",
+	"defaultExt": ".mp4"
+}
